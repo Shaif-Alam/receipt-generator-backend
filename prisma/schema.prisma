@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Donor {
+  id        Int      @id @default(autoincrement())
+  firstName String   @db.VarChar(50)
+  lastName  String?  @db.VarChar(50)
+  email     String?  @unique @db.VarChar(100)
+  phone     String?  @unique @db.VarChar(15)
+  address   String?  @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  state     String?  @db.VarChar(100)
+  zipCode   String?  @db.VarChar(10)
+  country   String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+
+  donations Donation[]
+}
+
+model Donation {
+  id            Int            @id @default(autoincrement())
+  amount        Float
+  currency      String         @default("INR") @db.VarChar(3)
+  paymentMethod PaymentMethod  @default(CASH)
+  status        DonationStatus @default(COMPLETED)
+  notes         String?        @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+  donorId Int
+  donor   Donor @relation(fields: [donorId], references: [id])
+}
+
+enum PaymentMethod {
+  CASH
+  ONLINE
+}
+
+enum DonationStatus {
+  PENDING
+  COMPLETED
+}
